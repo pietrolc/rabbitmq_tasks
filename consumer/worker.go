@@ -55,6 +55,15 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
+	// Set Quality of Service (QoS) to limit the number of unacknowledged messages
+	err = ch.Qos(
+		1,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	)
+	failOnError(err, "Failed to set QoS")
+
+	// Start consuming messages from the queue
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
@@ -66,6 +75,7 @@ func main() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
+	// Create a channel to keep the program running
 	var forever chan struct{}
 
 	go func() {
@@ -81,5 +91,5 @@ func main() {
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+	<-forever // Block forever to keep the program running
 }
